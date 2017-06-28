@@ -1,0 +1,11 @@
+db:
+  image: postgres
+app:
+  build: .
+  command: rails s
+  ports:
+    - 3000:3000
+  volumes:
+    - .:/app
+  links:
+    - db
