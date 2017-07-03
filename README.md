@@ -4,7 +4,7 @@
 
 docker and docker-compose
 
-* Build and run
+## Build and run locally
 
 Navigate to home directory and run
 ```
@@ -25,22 +25,42 @@ docker-compose rm && docker-compose build --no-cache && docker-compose up
 
 The --no-cache is definitely optional (because it takes forever), but sometimes helpful if you really want the image to build from scratch. (You also have to recreate and initialize the database)
 
-* Database creation
+### Database creation & initialization
+
 In a different tab, run:
 ```
 docker-compose run app rake db:create
 ```
 
-* Database initialization
-Then run:
+Then run the following to initialize the database:
 ```
 docker-compose run app rake db:migrate
 ```
+
+## Environment variables
+There are two options. Can either load variables from a local file (env.list) or write them in the command line.
+
+* With a file
+Make a local file called 'env.list' in your directory and specify variables
+```
+mv env.list.sample env.list
+```
+
+Then run command (after build):
+```
+docker run --env-file env-list solidus_bare_docker rails s
+```
+
+* In command line
+docker run -e ENV_RAILS=production \
+  -e RAILS_MAX_THREADS=5 \
+  -e SECRET_KEY_BASE=secret_key_base \
+  -e DATABASE_URL=postgres://solidus_bare_docker:mypass@localhost/solidus_bare_docker_production \
+  solidus_bare_docker rails s
+
 
 * How to run the test suite
 
 * Services (job queues, cache servers, search engines, etc.)
 
 * Deployment instructions
-
-* ...

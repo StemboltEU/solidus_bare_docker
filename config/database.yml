@@ -84,6 +84,4 @@ test:
 #
 production:
   <<: *default
-  database: solidus_bare_docker_production
-  username: solidus_bare_docker
-  password: <%= ENV['SOLIDUS_BARE_DOCKER_DATABASE_PASSWORD'] %>
+  url: <%= ENV['DATABASE_URL'] %>
