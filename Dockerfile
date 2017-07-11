@@ -3,6 +3,8 @@ FROM ruby:alpine
 RUN \
   apk update && apk add --update --upgrade \
   tzdata \
+  imagemagick \
+  file \
   postgresql-dev \
   build-base \
   git \
