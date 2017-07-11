@@ -8,8 +8,9 @@ RUN \
   git \
   nodejs
 
-COPY Gemfile* /tmp/
-WORKDIR /tmp
+ENV BUNDLE_PATH /bundle
+
+COPY Gemfile* ./
 RUN bundle install && \
     echo 'gem: --no-document' >> ~/.gemrc
 
