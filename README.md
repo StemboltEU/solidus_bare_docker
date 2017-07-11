@@ -25,16 +25,26 @@ docker-compose rm && docker-compose build --no-cache && docker-compose up
 
 The --no-cache is definitely optional (because it takes forever), but sometimes helpful if you really want the image to build from scratch. (You also have to recreate and initialize the database)
 
-### Database creation & initialization
+### Database creation & initialization & sample/seed data
 
-In a different tab, run:
+To create the database:
 ```
 docker-compose run app rake db:create
 ```
 
-Then run the following to initialize the database:
+To initialize the database:
 ```
 docker-compose run app rake db:migrate
+```
+
+To seed the database:
+```
+docker-compose run app rake db:seed
+```
+
+To load sample data:
+```
+docker-compose run app rake spree_sample:load
 ```
 
 ## Environment variables
