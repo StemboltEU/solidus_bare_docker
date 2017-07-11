@@ -14,7 +14,10 @@ COPY Gemfile* ./
 RUN bundle install && \
     echo 'gem: --no-document' >> ~/.gemrc
 
-EXPOSE 3000
+ENV APP_HOME /home/solidus
 
-WORKDIR /app
-ADD . /app
+RUN mkdir $APP_HOME
+WORKDIR $APP_HOME
+ADD . .
+
+EXPOSE 3000
