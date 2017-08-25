@@ -74,3 +74,13 @@ docker run -e ENV_RAILS=production \
 * Services (job queues, cache servers, search engines, etc.)
 
 * Deployment instructions
+
+* Split build/run images
+```
+$ docker build -t build-solidus build/
+$ docker run --rm \
+    --volume="$PWD/build/src:/src" \
+    --volume="$PWD/run/artifacts:/artifacts" \
+    build-solidus
+$ docker build -t solidus run/
+```
