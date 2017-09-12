@@ -1,48 +1,73 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/solidus
+    working_directory: /dev/shm/solidus
     environment:
-      DB: postgresql
-      DB_HOST: localhost
-      DEFAULT_MAX_WAIT_TIME: 10
       SOLIDUS_RAISE_DEPRECATIONS: true
-      CIRCLE_TEST_REPORTS: /tmp/test-results
-      CIRCLE_ARTIFACTS: /tmp/test-artifacts
     docker:
-      - image: circleci/ruby:2.4.1-node-browsers
-      - image: jhawthorn/circleci-postgres-fast
+      - image: circleci/ruby:2.3.3-node-browsers
         environment:
-          POSTGRES_USER: root
+          RAILS_ENV: test
+          RACK_ENV: test
+          PGHOST: 127.0.0.1
+          BUNDLE_PATH: ~/solidus/vendor/bundle
+      - image: circleci/postgres:9.6.2-alpine
     parallelism: 3
     steps:
       - checkout
 
       - restore_cache:
+          name: Restore bundle cache
           keys:
-            - solidus-gems-v1-{{ .Branch }}
-            - solidus-gems-v1
-      - run: |
-          bundle install --path=vendor/bundle
-          for project in api backend core frontend sample; do
-            (cd $project && bundle install --path=../vendor/bundle)
-          done
-      - cache-save:
-          key: solidus-gems-v1-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
-          paths:
-            - vendor/bundle
+            - solidus-bundle-{{ checksum "Gemfile.lock" }}
+            - solidus-bundle
 
       - run:
-          name: Run Tests
-          command: ./build-ci.rb test
+          name: Install dependencies
+          command: |
+            bundle check --path=$BUNDLE_PATH || bundle install --path=$BUNDLE_PATH --jobs 4 --retry 3
+            mkdir -p $BUNDLE_PATH
+            ln -s /dev/shm/solidus/bin/bundle $BUNDLE_PATH
+
+      - run:
+          name: Install postgresql client
+          command: |
+            sudo apt-get update
+            sudo apt-get install postgresql-client
+
+      - run:
+          name: Install PhantomJS
+          command: |
+            [ -f /usr/local/bin/phantomjs ] || wget -O /tmp/phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
+            [ -f /usr/local/bin/phantomjs ] || tar -xjf /tmp/phantomjs.tar.bz2 -C /tmp
+            [ -f /usr/local/bin/phantomjs ] || sudo mv /tmp/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
+
+      - save_cache:
+          name: Store bundle cache
+          key: solidus-bundle-{{ checksum "Gemfile.lock" }}
+          paths:
+            - $BUNDLE_PATH
+
+      - save_cache:
+          name: Store bundle cache
+          key: solidus-bundle
+          paths:
+            - $BUNDLE_PATH
+
+      - run:
+          name: Setup database
+          command: |
+            bundle exec rake db:create
+            bundle exec rake db:schema:load --trace
+
+      - run:
+          name: Parallel RSpec
+          command: |
+            circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings | xargs bundle exec rspec --format progress --format RspecJunitFormatter -o tmp/test-results/rspec.xml
 
       - store_artifacts:
-          path: /tmp/test-artifacts
-          destination: test-artifacts
-
-      - store_artifacts:
-          path: /tmp/test-results
-          destination: raw-test-output
+          path: tmp/capybara
 
       - store_test_results:
-          path: /tmp/test-results
+          path: tmp/test-results
+          destination: test-results

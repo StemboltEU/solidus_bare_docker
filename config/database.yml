@@ -18,7 +18,6 @@ default: &default
   adapter: postgresql
   encoding: unicode
   # TO-DO: change host and user to variables depending on env
-  host: db
   user: postgres
   password:
   # For details on connection pooling, see Rails configuration guide
