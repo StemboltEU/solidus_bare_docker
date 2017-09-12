@@ -71,6 +71,18 @@ jobs:
       - store_test_results:
           path: tmp/test-results
           destination: test-results
+
+  push_image:
+    docker:
+      - image: google/cloud-sdk:latest
+    steps:
+      - run:
+          name: Decode Google Cloud Credentials
+          command: |
+            echo ${GOOGLE_AUTH} | base64 -i --decode > ${HOME}/gcp-key.json
+            gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+
 # 
 # # create a alpine-based build container to ensure that the ruby gems with C-bindings are compiled with musil instead of libc.  
 #
