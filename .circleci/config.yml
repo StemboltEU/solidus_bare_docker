@@ -1,16 +1,16 @@
 version: 2
 jobs:
   build:
-    working_directory: /dev/shm/solidus
+    working_directory: ~/solidus
     environment:
       SOLIDUS_RAISE_DEPRECATIONS: true
     docker:
-      - image: circleci/ruby:2.3.3-node-browsers
+      - image: circleci/ruby:2.3.4-node-browsers
         environment:
           RAILS_ENV: test
           RACK_ENV: test
           PGHOST: 127.0.0.1
-          BUNDLE_PATH: ~/solidus/vendor/bundle
+          BUNDLE_PATH: ~/solidus/
       - image: circleci/postgres:9.6.2-alpine
     parallelism: 3
     steps:
@@ -19,15 +19,12 @@ jobs:
       - restore_cache:
           name: Restore bundle cache
           keys:
-            - solidus-bundle-{{ checksum "Gemfile.lock" }}
-            - solidus-bundle
+            - solidus-bundle-v1-{{ checksum "Gemfile.lock" }}
 
       - run:
           name: Install dependencies
           command: |
-            bundle check --path=$BUNDLE_PATH || bundle install --path=$BUNDLE_PATH --jobs 4 --retry 3
-            mkdir -p $BUNDLE_PATH
-            ln -s /dev/shm/solidus/bin/bundle $BUNDLE_PATH
+            bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs 4 --retry 3
 
       - run:
           name: Install postgresql client
@@ -35,24 +32,11 @@ jobs:
             sudo apt-get update
             sudo apt-get install postgresql-client
 
-      - run:
-          name: Install PhantomJS
-          command: |
-            [ -f /usr/local/bin/phantomjs ] || wget -O /tmp/phantomjs.tar.bz2 https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2
-            [ -f /usr/local/bin/phantomjs ] || tar -xjf /tmp/phantomjs.tar.bz2 -C /tmp
-            [ -f /usr/local/bin/phantomjs ] || sudo mv /tmp/phantomjs-2.1.1-linux-x86_64/bin/phantomjs /usr/local/bin/phantomjs
-
       - save_cache:
           name: Store bundle cache
-          key: solidus-bundle-{{ checksum "Gemfile.lock" }}
+          key: solidus-bundle-v1-{{ checksum "Gemfile.lock" }}
           paths:
-            - $BUNDLE_PATH
-
-      - save_cache:
-          name: Store bundle cache
-          key: solidus-bundle
-          paths:
-            - $BUNDLE_PATH
+            - vendor/bundle
 
       - run:
           name: Setup database
@@ -61,16 +45,19 @@ jobs:
             bundle exec rake db:schema:load --trace
 
       - run:
-          name: Parallel RSpec
+          name: Run rspec in parallel
           command: |
-            circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings | xargs bundle exec rspec --format progress --format RspecJunitFormatter -o tmp/test-results/rspec.xml
+            bundle exec rspec --profile 10 \
+                              --format progress \
+                              --format RspecJunitFormatter \
+                              -o tmp/test-results/rspec-#{$CIRCLE_NODE_INDEX}.xml \
+                              $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
 
       - store_artifacts:
           path: tmp/capybara
 
       - store_test_results:
           path: tmp/test-results
-          destination: test-results
 
   push_image:
     docker:
@@ -88,10 +75,11 @@ workflows:
   build_and_push:
     jobs:
       - build
-      - push_image
-
-# 
-# # create a alpine-based build container to ensure that the ruby gems with C-bindings are compiled with musil instead of libc.  
+      - push_image:
+          requires:
+            - build
+#
+# # create a alpine-based build container to ensure that the ruby gems with C-bindings are compiled with musil instead of libc.
 #
 # Build a docker image that contains a working solidus shop but no build tools for it. Only things we need at runtime.
 # It should be based on alpine and generate no files on its own but rather copy the generated files from the build-container.
@@ -101,4 +89,3 @@ workflows:
 # Tell the Kubernetes cluster to create a kubernetes-deployment that uses the previously built-and-pushed container image.
 # Also define a service and an ingress controller that points to the pods created to the deployment.
 #
-
