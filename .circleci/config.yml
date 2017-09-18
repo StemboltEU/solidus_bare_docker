@@ -74,8 +74,9 @@ jobs:
           name: Build runtime Docker image
           command: |
             TAG=0.1.$CIRCLE_BUILD_NUM
-            sudo docker build -t eu.gcr.io/${GOOGLE_PROJECT_ID}/solidus-runtime:$TAG \
-                              -f Dockerfile.runtime
+            sudo docker build -t $TAG \
+                              -f Dockerfile.runtime .
+            sudo docker tag $(docker images -q $TAG) eu.gcr.io/$GOOGLE_PROJECT_ID/solidus-runtime:$TAG
 
       - run:
           name: Check if it worked
