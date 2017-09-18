@@ -61,8 +61,8 @@ jobs:
   push_image:
     working_directory: ~/solidus
     environment:
-      TAG: 0.1.$CIRCLE_BUILD_NUM
-      REGISTRY_NAME: eu.gcr.io/$GOOGLE_PROJECT_ID/solidus-runtime
+      TAG: "0.1.${CIRCLE_BUILD_NUM}"
+      REGISTRY_NAME: "eu.gcr.io/${GOOGLE_PROJECT_ID}/solidus-runtime"
     docker:
       - image: google/cloud-sdk:latest
     steps:
