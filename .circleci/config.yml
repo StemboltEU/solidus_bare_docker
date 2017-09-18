@@ -79,7 +79,7 @@ jobs:
       - run:
           name: Build runtime Docker image
           command: |
-            docker build -t ${HOSTNAME}/${GOOGLE_PROJECT_ID}/solidus-runtime:0.1.${CIRCLE_BUILD_NUM} \
+            docker build -t ${HOSTNAME}/${GOOGLE_PROJECT_ID}/solidus-runtime:0.1.${CIRCLE_SHA1} \
                          -f Dockerfile.runtime .
 
       - run:
@@ -91,7 +91,7 @@ jobs:
 
       - run:
           name: Push docker image to Google Container Registry
-          command: gcloud docker -- push ${HOSTNAME}/${GOOGLE_PROJECT_ID}/solidus-runtime:0.1.${CIRCLE_BUILD_NUM}
+          command: gcloud docker -- push ${HOSTNAME}/${GOOGLE_PROJECT_ID}/solidus-runtime:0.1.${CIRCLE_SHA1}
 
 workflows:
   version: 2
