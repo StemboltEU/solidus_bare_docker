@@ -83,9 +83,9 @@ jobs:
                          -f Dockerfile.runtime .
 
       - run:
-          name: Decode Google Cloud Credentials
+          name: Decode Google Container Registry Credentials
           command: |
-            echo ${GOOGLE_AUTH} | base64 -i --decode > ${HOME}/gcp-key.json
+            echo ${GOOGLE_CONTAINER_REGISTRY_AUTH} | base64 -i --decode > ${HOME}/gcp-key.json
             gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
             gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
 
@@ -95,8 +95,15 @@ jobs:
 
   deploy:
     docker:
-      - image: alpine:3.6
+      - image: google/cloud-sdk:latest
     steps:
+      - run:
+          name: Decode Google Container Engine Credentials
+          command: |
+            echo ${GOOGLE_CONTAINER_ENGINE_AUTH} | base64 -i --decode > ${HOME}/gcp-key.json
+            gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+
       - run:
           name: Install kubectl
           command: |
