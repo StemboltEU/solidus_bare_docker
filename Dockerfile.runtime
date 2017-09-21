@@ -1,1 +1,28 @@
-FROM nginx
+FROM mhart/alpine-node:8 as nodejs-builder
+
+FROM ruby:2.3.5-alpine3.4
+COPY --from=nodejs-builder /usr/bin/node /usr/bin/
+COPY --from=nodejs-builder /usr/lib/libgcc* /usr/lib/libstdc* /usr/lib/
+RUN node -v
+
+RUN \
+  apk update && apk add --update --upgrade \
+  tzdata \
+  imagemagick \
+  file \
+  postgresql-dev \
+  build-base \
+  git \
+  nodejs
+
+COPY Gemfile* /tmp/
+WORKDIR /tmp
+RUN bundle install && \
+    echo 'gem: --no-document' >> ~/.gemrc
+
+EXPOSE 3000
+
+WORKDIR /app
+ADD . /app
+
+CMD ["bundle", "exec", "rails", "server"]
