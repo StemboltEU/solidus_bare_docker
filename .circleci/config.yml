@@ -103,6 +103,7 @@ jobs:
             echo ${GOOGLE_CONTAINER_ENGINE_AUTH} | base64 -i --decode > ${HOME}/gcp-key.json
             gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
             gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+            gcloud container clusters get-credentials ${CLUSTER_NAME} --zone ${ZONE} --project ${GOOGLE_PROJECT_ID}
 
       - run:
           name: Install kubectl
