@@ -7,14 +7,14 @@ metadata:
   creationTimestamp: null
   generation: 1
   labels:
-    app: nginx
-  name: nginx
-  selfLink: /apis/extensions/v1beta1/namespaces//deployments/nginx
+    app: solidus
+  name: solidus
+  selfLink: /apis/extensions/v1beta1/namespaces//deployments/solidus
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: nginx
+      app: solidus
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -24,15 +24,15 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        app: nginx
+        app: solidus
     spec:
       containers:
       - image: nginx
         imagePullPolicy: IfNotPresent
-        name: nginx
+        name: solidus
         ports:
-          - name: nginx
-            containerPort: 80
+          - name: solidus
+            containerPort: 3000
         resources:
           limits:
             memory: "250Mi"
@@ -49,12 +49,12 @@ spec:
 kind: Service
 apiVersion: v1
 metadata:
-  name: nginx
+  name: solidus
 spec:
   selector:
-    app: nginx
+    app: solidus
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: nginx
+      port: 3000
+      targetPort: solidus
   type: LoadBalancer

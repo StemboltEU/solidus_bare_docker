@@ -116,7 +116,9 @@ jobs:
 
       - run:
           name: Apply deployment
-          command: kubectl apply -f nginx.yaml
+          command: |
+            kubectl apply -f solidus.yaml
+            kubectl set image deployments/solidus "solidus=${HOSTNAME}/${GOOGLE_PROJECT_ID}/solidus-runtime:${CIRCLE_SHA1}"
 
 workflows:
   version: 2
