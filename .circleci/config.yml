@@ -97,6 +97,8 @@ jobs:
     docker:
       - image: google/cloud-sdk:latest
     steps:
+      - checkout
+
       - run:
           name: Decode Google Container Engine Credentials
           command: |
@@ -111,7 +113,10 @@ jobs:
             curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
             chmod +x ./kubectl
             mv kubectl /usr/local/bin/kubectl
-            kubectl version
+
+      - run:
+          name: Apply deployment
+          command: kubectl apply -f nginx.yaml
 
 workflows:
   version: 2
