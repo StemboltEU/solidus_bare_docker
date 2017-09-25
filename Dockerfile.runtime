@@ -5,24 +5,18 @@ COPY --from=nodejs-builder /usr/bin/node /usr/bin/
 COPY --from=nodejs-builder /usr/lib/libgcc* /usr/lib/libstdc* /usr/lib/
 RUN node -v
 
-RUN \
-  apk update && apk add --update --upgrade \
-  tzdata \
-  imagemagick \
-  file \
-  postgresql-dev \
-  build-base \
-  git \
-  nodejs
-
-COPY Gemfile* /tmp/
-WORKDIR /tmp
-RUN bundle install && \
-    echo 'gem: --no-document' >> ~/.gemrc
-
-EXPOSE 3000
+RUN apk update && \
+    apk add --no-cache tzdata \
+                       imagemagick \
+                       file \
+                       postgresql-dev \
+                       git
 
 WORKDIR /app
-ADD . /app
+# COPY vendor/bundle app bin config db lib public vendor Gemfile* config.ru /app/
+COPY . /app/
+RUN bundle check --path=vendor/bundle
+
+EXPOSE 3000
 
 CMD ["bundle", "exec", "rails", "server"]

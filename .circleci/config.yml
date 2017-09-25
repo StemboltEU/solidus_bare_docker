@@ -28,6 +28,11 @@ jobs:
           command: |
             bundle check --path=vendor/bundle || bundle install --path=vendor/bundle --jobs 4 --retry 3
 
+      - persist_to_workspace:
+          root: .
+          paths:
+            - vendor/bundle
+
       - save_cache:
           name: Store bundle cache
           key: solidus-bundle-v1-{{ checksum "Gemfile.lock" }}
@@ -60,7 +65,10 @@ jobs:
     docker:
       - image: google/cloud-sdk:latest
     steps:
-      - checkout #TODO: copy files here instead of new checkout
+      - checkout
+
+      - attach_workspace:
+          at: .
 
       - setup_remote_docker:
           version: 17.06.1-ce
