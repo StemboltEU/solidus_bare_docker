@@ -11,7 +11,7 @@ metadata:
   name: solidus
   selfLink: /apis/extensions/v1beta1/namespaces//deployments/solidus
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: solidus
@@ -30,6 +30,14 @@ spec:
       - image: nginx
         imagePullPolicy: IfNotPresent
         name: solidus
+        env:
+          - name: DB_HOST
+            value: postgres
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: postgres
+                key: password
         ports:
           - name: solidus
             containerPort: 3000

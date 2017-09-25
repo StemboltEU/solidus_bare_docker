@@ -123,7 +123,7 @@ jobs:
       - run:
           name: Apply deployment
           command: |
-            kubectl apply -f solidus.yaml
+            kubectl apply -f kubernetes_config/solidus.yaml
             kubectl set image deployments/solidus "solidus=${HOSTNAME}/${GOOGLE_PROJECT_ID}/solidus-runtime:${CIRCLE_SHA1}"
 
 workflows:
@@ -141,14 +141,3 @@ workflows:
       - deploy:
           requires:
             - wait_for_deploy_trigger
-#
-# # create a alpine-based build container to ensure that the ruby gems with C-bindings are compiled with musil instead of libc.
-#
-# Build a docker image that contains a working solidus shop but no build tools for it. Only things we need at runtime.
-# It should be based on alpine and generate no files on its own but rather copy the generated files from the build-container.
-#
-# Push the image to Google Container Registry using at least the git hash as a label and maybe additional ones.
-#
-# Tell the Kubernetes cluster to create a kubernetes-deployment that uses the previously built-and-pushed container image.
-# Also define a service and an ingress controller that points to the pods created to the deployment.
-#
