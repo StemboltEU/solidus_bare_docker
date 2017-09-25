@@ -6,6 +6,9 @@ jobs:
       SOLIDUS_RAISE_DEPRECATIONS: true
     docker:
       - image: ${HOSTNAME}/${GOOGLE_PROJECT_ID}/solidus-build
+        auth:
+          username: _json_key
+          password: $GOOGLE_CONTAINER_REGISTRY_AUTH
         environment:
           RAILS_ENV: test
           RACK_ENV: test
@@ -86,7 +89,7 @@ jobs:
       - run:
           name: Decode Google Container Registry Credentials
           command: |
-            echo ${GOOGLE_CONTAINER_REGISTRY_AUTH} | base64 -i --decode > ${HOME}/gcp-key.json
+            echo ${GOOGLE_CONTAINER_REGISTRY_AUTH} > ${HOME}/gcp-key.json
             gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
             gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
 
