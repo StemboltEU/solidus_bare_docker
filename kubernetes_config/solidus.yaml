@@ -33,6 +33,11 @@ spec:
         env:
           - name: RAILS_ENV
             value: production
+          - name: SECRET_KEY_BASE
+            valueFrom:
+              secretKeyRef:
+                name: production
+                key: secretkeybase
           - name: DB_HOST
             value: postgres
           - name: DB_PASSWORD
