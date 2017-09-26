@@ -19,6 +19,8 @@ COPY . /app/
 # check if bundle check needs git
 RUN bundle check --path=vendor/bundle
 
+RUN ./setup-database.sh
+
 EXPOSE 3000
 
 CMD ["bundle", "exec", "rails", "server"]

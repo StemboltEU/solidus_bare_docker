@@ -123,6 +123,7 @@ jobs:
       - run:
           name: Apply deployment
           command: |
+            kubectl apply -f kubernetes_config/postgres.yaml
             kubectl apply -f kubernetes_config/solidus.yaml
             kubectl set image deployments/solidus "solidus=${HOSTNAME}/${GOOGLE_PROJECT_ID}/solidus-runtime:${CIRCLE_SHA1}"
 
