@@ -9,12 +9,14 @@ RUN apk update && \
     apk add --no-cache tzdata \
                        imagemagick \
                        file \
-                       postgresql-dev \
                        git
 
 WORKDIR /app
 # COPY vendor/bundle app bin config db lib public vendor Gemfile* config.ru /app/
 COPY . /app/
+
+# This sets the path for bundle, which is important for running any 'bundle exec' commands
+# check if bundle check needs git
 RUN bundle check --path=vendor/bundle
 
 EXPOSE 3000
