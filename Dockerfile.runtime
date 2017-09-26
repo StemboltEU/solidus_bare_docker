@@ -9,6 +9,7 @@ RUN apk update && \
     apk add --no-cache tzdata \
                        imagemagick \
                        file \
+                       postgresql-dev \
                        git
 
 WORKDIR /app
