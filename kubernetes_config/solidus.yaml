@@ -28,7 +28,7 @@ spec:
         app: solidus
     spec:
       containers:
-      - image: nginx
+      - image: $IMAGE_NAME
         imagePullPolicy: IfNotPresent
         name: solidus
         env:
