@@ -48,4 +48,4 @@ env.list
 env.list.sample
 
 # Ignore public assets created by 'rake spree_sample:load'
-public
+public/**/*
