@@ -20,6 +20,7 @@ spec:
       maxSurge: 1
       maxUnavailable: 1
     type: RollingUpdate
+  revisionHistoryLimit: 3
   template:
     metadata:
       creationTimestamp: null
