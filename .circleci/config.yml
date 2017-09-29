@@ -2,6 +2,41 @@ version: 2
 jobs:
   build:
     working_directory: ~/solidus
+    docker:
+      - image: google/cloud-sdk:latest
+    steps:
+      - checkout
+
+      - setup_remote_docker:
+          version: 17.06.1-ce
+
+      - restore_cache:
+          name: Restore Dockerfile.build checksum
+          keys:
+            - build-image-{{ checksum "Dockerfile.build" }}
+
+      - run:
+          name: Check if build image has changed
+          command: |
+            if [ -f dockerfile-build-checksum.txt ] && [ md5sum -c dockerfile-build-checksum.txt ]; then
+              echo "Dockerfile.build has not changed. Continuing."
+            else
+              echo "Dockerfile.build has changed. Must build and push build image before continuing."
+              ./scripts/build-and-push-build-image.sh
+            fi
+
+      - run:
+          name: Save Dockerfile.build checksum
+          command: eval md5sum Dockerfile.build > dockerfile-build-checksum.txt
+
+      - save_cache:
+          name: Save Dockerfile.build version
+          key: build-image-{{ checksum "Dockerfile.build" }}
+          paths:
+            - dockerfile-build-checksum.txt
+
+  run_tests:
+    working_directory: ~/solidus
     environment:
       SOLIDUS_RAISE_DEPRECATIONS: true
     docker:
@@ -60,7 +95,7 @@ jobs:
       - store_test_results:
           path: tmp/test-results
 
-  push_image:
+  build_and_push_runtime_image:
     working_directory: ~/solidus
     docker:
       - image: google/cloud-sdk:latest
@@ -131,13 +166,16 @@ workflows:
   build_and_push:
     jobs:
       - build
-      - push_image:
+      - run_tests:
           requires:
             - build
+      - build_and_push_runtime_image:
+          requires:
+            - run_tests
       - wait_for_deploy_trigger:
          type: approval
          requires:
-           - push_image
+           - build_and_push_runtime_image
       - deploy:
           requires:
             - wait_for_deploy_trigger
