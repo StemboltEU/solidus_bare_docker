@@ -28,7 +28,7 @@ As it says, visit localhost:8001/ui to view the Kubernetes Dashboard.
 
 ### Create secrets
 
-Google Container Engine has its own secrets management. We'll use the 'kubectl' to create the secrets manually from the command line. These commands then store them in the Google Container Engine.
+Google Container Engine has its own secrets management (https://kubernetes.io/docs/concepts/configuration/secret/). We'll use the 'kubectl' to create the secrets manually from the command line. These commands then store them in the Google Container Engine.
 
 We need:
 - Secret Key Base to run Rails in production
