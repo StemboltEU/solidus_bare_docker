@@ -1,76 +1,75 @@
-# Docker for solidus
+# Solidus with docker, circleCI 2.0 and kubernetes
 
-* System dependencies
+This is a sample setup for running Solidus on Kubernetes and using CircleCI 2.0 to deploy.
 
-docker and docker-compose
+Uses:
+- Google container engine to run kubernetes (https://cloud.google.com/container-engine/)
+- Google container registry to store images (https://cloud.google.com/container-registry/)
+- Google persistent disk for storage (https://cloud.google.com/persistent-disk/)
 
-## Build and run locally
+# Google cloud setup
 
-Navigate to home directory and run
+Setup the following on cloud.google.com in your console:
+
+- Google container registry (https://cloud.google.com/container-registry/docs/quickstart)
+- Google container engine (https://cloud.google.com/container-engine/docs/tutorials/hello-app)
+- Google persistent disk (https://cloud.google.com/compute/docs/disks/add-persistent-disk)
+
+### Install Kubernetes CLI
+
+Install the kubectl command, which you will use to see your Kubernetes Dashboard:
+https://kubernetes.io/docs/tasks/tools/install-kubectl/
+
 ```
-docker-compose up
-```
-(using -d flag will run containers in the background)
-
-This should build the images (database and app) from scratch and start the containers.
-
-Examples of how to find IP of your docker container(http://networkstatic.net/10-examples-of-how-to-get-docker-container-ip-address/)
-
-* Re-build
-
-First stop the container (either ctrl-C or docker-compose down), remove and re-build:
-```
-docker-compose rm && docker-compose build --no-cache && docker-compose up
-```
-
-The --no-cache is definitely optional (because it takes forever), but sometimes helpful if you really want the image to build from scratch. (You also have to recreate and initialize the database)
-
-### Database creation & initialization & sample/seed data
-
-To create the database:
-```
-docker-compose run app rake db:create
+kubectl proxy
 ```
 
-To initialize the database:
-```
-docker-compose run app rake db:migrate
-```
+As it says, visit localhost:8001/ui to view the Kubernetes Dashboard.
 
-To seed the database:
-```
-docker-compose run app rake db:seed
-```
+### Create secrets
 
-To load sample data:
-```
-docker-compose run app rake spree_sample:load
-```
+Google Container Engine has its own secrets management. We'll use the 'kubectl' to create the secrets manually from the command line. These commands then store them in the Google Container Engine.
 
-## Environment variables
-There are two options. Can either load variables from a local file (env.list) or write them in the command line.
+We need:
+- Secret Key Base to run Rails in production
+- Postgres database password
 
-* With a file
-Make a local file called 'env.list' in your directory and specify variables
+Create a secret key base secret (for SECRET_KEY_BASE):
 ```
-mv env.list.sample env.list
+kubectl create secret generic production --from-literal=secretkeybase=<secret_key>
 ```
 
-Then run command (after build):
+Postgres password secret (for POSTGRES_ROOT_PASSWORD and DB_PASSWORD):
 ```
-docker run --env-file env-list solidus_bare_docker rails s
+kubectl create secret generic postgres --from-literal=password=<root-user-password>
 ```
 
-* In command line
-docker run -e ENV_RAILS=production \
-  -e RAILS_MAX_THREADS=5 \
-  -e SECRET_KEY_BASE=secret_key_base \
-  -e DATABASE_URL=postgres://solidus_bare_docker:mypass@localhost/solidus_bare_docker_production \
-  solidus_bare_docker rails s
+The values are then specified in the kubernetes_config files using the 'valueFrom' key.
+
+# Configure CircleCI
+
+### Setup Service accounts
+
+In order to give CircleCI proper permissions to do stuff to our google cloud services, we need the following Google Cloud Service accounts:
+1. Allow CircleCI to pull/push from the Google Container Registry (e.g., "circleci-container-upload")
+2. Allow CircleCI to apply a deployment to the Google Container Engine (e.g., "circleci-kubernetes-deploy")
+
+Create the accounts:
+https://developers.google.com/identity/protocols/OAuth2ServiceAccount#creatinganaccount
+
+Grant correct permissions:
+- For the Google Container Registry service account, grant 'Storage Admin' permissions
+- For the Google Container Engine service account, grant 'Container Engine Developer' permissions
+
+For each service account, we will use a JSON key file for authentification (https://cloud.google.com/container-registry/docs/advanced-authentication).
+
+Create the JSON key: https://support.google.com/cloud/answer/6158849#serviceaccounts.
 
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
+In your CircleCI Project Settings, add the following variables to 'Environment Variables':
+- GOOGLE_CONTAINER_ENGINE_AUTH - encoded JSON key from above (use base64 to encode: https://circleci.com/docs/2.0/google-container-engine/)
+- GOOGLE_CONTAINER_REGISTRY_AUTH - json (DO NOT ENCODE: we need the full json for auth/username&password: https://cloud.google.com/container-registry/docs/advanced-authentication and https://circleci.com/docs/2.0/private-images/)
+- HOSTNAME - Google container regsitry (gcr.io) hostname. See available hostnames here: https://cloud.google.com/container-registry/docs/pushing-and-pulling)
+- ZONE - zone chosen for compute engine (https://cloud.google.com/compute/docs/regions-zones/regions-zones). can see from this list: https://console.cloud.google.com/kubernetes/list
+- CLUSTER_NAME - the name of your gke cluster, can be found here: https://console.cloud.google.com/kubernetes/list
+- GOOGLE_PROJECT_ID - is your Google Cloud Platform Console [project ID](https://support.google.com/cloud/answer/6158840)
