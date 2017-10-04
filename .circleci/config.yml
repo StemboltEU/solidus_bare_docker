@@ -18,7 +18,8 @@ jobs:
       - run:
           name: Check if build image has changed
           command: |
-            if [ -f dockerfile-build-checksum.txt ] && [ md5sum -c dockerfile-build-checksum.txt ]; then
+            if [ -f dockerfile-build-checksum.txt ] && [ "$(md5sum -c dockerfile-build-checksum.txt)" == "Dockerfile.build: OK" ]
+            then
               echo "Dockerfile.build has not changed. Continuing."
             else
               echo "Dockerfile.build has changed. Must build and push build image before continuing."
