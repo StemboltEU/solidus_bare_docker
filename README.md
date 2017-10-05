@@ -9,7 +9,7 @@ Uses:
 
 # Google cloud setup
 
-Setup the following on cloud.google.com in your console:
+Setup the following either using the gcloud sdk cli or on cloud.google.com in your console:
 
 - Google container registry (https://cloud.google.com/container-registry/docs/quickstart)
 - Google container engine (https://cloud.google.com/container-engine/docs/tutorials/hello-app)
@@ -24,7 +24,7 @@ https://kubernetes.io/docs/tasks/tools/install-kubectl/
 kubectl proxy
 ```
 
-As it says, visit localhost:8001/ui to view the Kubernetes Dashboard.
+As it says, visit http://localhost:8001/ui to view the Kubernetes Dashboard.
 
 ### Create secrets
 

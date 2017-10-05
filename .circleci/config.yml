@@ -125,7 +125,7 @@ jobs:
                          -f Dockerfile.runtime .
 
       - run:
-          name: Decode Google Container Registry Credentials
+          name: Authenticate with Google Container Registry Credentials
           command: |
             echo ${GOOGLE_CONTAINER_REGISTRY_AUTH} > ${HOME}/gcp-key.json
             gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
@@ -142,7 +142,7 @@ jobs:
       - checkout
 
       - run:
-          name: Decode Google Container Engine Credentials
+          name: Decode and authenticate with Google Container Engine Credentials
           command: |
             echo ${GOOGLE_CONTAINER_ENGINE_AUTH} | base64 -i --decode > ${HOME}/gcp-key.json
             gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json

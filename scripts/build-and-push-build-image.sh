@@ -11,7 +11,7 @@ mv /tmp/docker/* /usr/bin
 echo "Building build image"
 docker build -t $HOSTNAME/$GOOGLE_PROJECT_ID/solidus-build -f Dockerfile.build .
 
-echo "Decoding google container regisry credentials"
+echo "Decoding google container registry credentials"
 echo $GOOGLE_CONTAINER_REGISTRY_AUTH > $HOME/gcp-key.json
 gcloud auth activate-service-account --key-file $HOME/gcp-key.json
 gcloud --quiet config set project $GOOGLE_PROJECT_ID
