@@ -87,7 +87,7 @@ jobs:
 
       - run:
           name: Precompile assets
-          command: bundle exec rake assets:precompile RAILS_ENV=production
+          command: bundle exec rake assets:precompile RAILS_ENV=production SECRET_KEY_BASE=very_secret
 
       - persist_to_workspace:
           root: .
