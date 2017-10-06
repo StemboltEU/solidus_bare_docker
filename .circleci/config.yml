@@ -124,6 +124,20 @@ jobs:
             mv /tmp/docker/* /usr/bin
 
       - run:
+          name: Authenticate with Google Cloud Storage Credentials
+            echo ${GOOGLE_CLOUD_STORAGE_AUTH} > ${HOME}/gcp-key.json
+            gcloud auth activate-service-account --key-file ${HOME}/gcp-key.json
+            gcloud --quiet config set project ${GOOGLE_PROJECT_ID}
+
+      - run:
+          name: Upload static assets
+          command: gsutil cp
+
+      - run:
+          name: Delete Static assets
+          command: rm -rf public
+
+      - run:
           name: Build runtime Docker image
           command: |
             docker build -t ${HOSTNAME}/${GOOGLE_PROJECT_ID}/solidus-runtime:${CIRCLE_SHA1} \
