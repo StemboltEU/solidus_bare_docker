@@ -10,6 +10,4 @@ bundle exec rake db:migrate
 # it's own check if it's already been seeded, but check should really be here.
 AUTO_ACCEPT=true bundle exec rake db:seed
 
-bundle exec rake assets:precompile
-
 bundle exec rails server
