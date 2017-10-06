@@ -22,4 +22,4 @@ RUN bundle check --path=vendor/bundle
 
 EXPOSE 3000
 
-CMD ["./scripts/setup-database-and-run-solidus.sh"]
+CMD ["./bin/setup-database-and-run-solidus.sh"]

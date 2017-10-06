@@ -23,7 +23,7 @@ jobs:
               echo "Dockerfile.build has not changed. Continuing."
             else
               echo "Dockerfile.build has changed. Must build and push build image before continuing."
-              ./scripts/build-and-push-build-image.sh
+              ./bin/build-and-push-build-image.sh
             fi
 
       - run:
