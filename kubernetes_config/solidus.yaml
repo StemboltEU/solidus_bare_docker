@@ -72,6 +72,6 @@ spec:
   ports:
     - protocol: TCP
       name: solidus
-      port: solidus
+      port: 3000
       targetPort: solidus
   type: LoadBalancer
