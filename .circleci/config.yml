@@ -166,6 +166,7 @@ jobs:
           command: |
             kubectl apply -f kubernetes_config/postgres.yaml
             kubectl apply --namespace=kube-system -f kubernetes_config/traefik.yaml
+            kubectl apply --namespace=kube-system -f kubernetes_config/traefik-ingress.yaml
             cat kubernetes_config/solidus.yaml | sed "s|\$IMAGE_NAME|${HOSTNAME}/${GOOGLE_PROJECT_ID}\/solidus-runtime:${CIRCLE_SHA1}|" | kubectl apply -f -
             kubectl apply -f kubernetes_config/solidus-ingress.yaml
 

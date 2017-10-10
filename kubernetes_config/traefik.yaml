@@ -36,7 +36,17 @@ spec:
     - protocol: TCP
       port: 80
       name: web
-    - protocol: TCP
-      port: 8080
-      name: admin
   type: LoadBalancer
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: traefik-admin
+spec:
+  selector:
+    k8s-app: traefik-ingress-load-balancer
+  ports:
+    - name: traefik-admin
+      port: 80
+      targetPort: 8080
+  type: NodePort

@@ -33,6 +33,7 @@ Google Container Engine has its own secrets management (https://kubernetes.io/do
 We need:
 - Secret Key Base to run Rails in production
 - Postgres database password
+- Basic auth user and password for the traefik admin
 
 Create a secret key base secret (for SECRET_KEY_BASE):
 ```
@@ -45,6 +46,19 @@ kubectl create secret generic postgres --from-literal=password=<root-user-passwo
 ```
 
 The values are then specified in the kubernetes_config files using the 'valueFrom' key.
+
+Create a secret for the basic-auth:
+
+First create a basic auth file with username and password. Can use htpasswd (https://httpd.apache.org/docs/2.2/programs/htpasswd.html) to create the encoded file.
+
+```
+kubectl --namespace=kube-system create secret generic basic-auth-name --from-file=<path-to-basic-auth-file>
+```
+
+The basic auth file is specified in the traefik-ingress with the line:
+```
+ingress.kubernetes.io/auth-secret: basic-auth-name
+```
 
 # Configure CircleCI
 

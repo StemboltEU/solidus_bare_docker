@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: traefik-admin
+  namespace: kube-system
+  annotations:
+    kubernetes.io/ingress.class: traefik
+    ingress.kubernetes.io/auth-type: basic
+    ingress.kubernetes.io/auth-secret: basic-auth
+spec:
+  rules:
+  - host: traefik-admin
+    http:
+      paths:
+      - backend:
+          serviceName: traefik-admin
+          servicePort: 80
