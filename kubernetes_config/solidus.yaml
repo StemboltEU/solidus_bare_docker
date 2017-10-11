@@ -74,4 +74,4 @@ spec:
       name: solidus
       port: 3000
       targetPort: solidus
-  type: NodePort
+  type: ClusterIP
