@@ -9,9 +9,9 @@ metadata:
     ingress.kubernetes.io/auth-secret: basic-auth
 spec:
   rules:
-  - host: traefik-admin
-    http:
+  - http:
       paths:
-      - backend:
+      - path: /traefik
+        backend:
           serviceName: traefik-admin
           servicePort: 80
