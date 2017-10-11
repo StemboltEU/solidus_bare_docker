@@ -29,6 +29,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: traefik-ingress-service
+  namespace: kube-system
 spec:
   selector:
     k8s-app: traefik-ingress-load-balancer
@@ -42,6 +43,7 @@ kind: Service
 apiVersion: v1
 metadata:
   name: traefik-admin
+  namespace: kube-system
 spec:
   selector:
     k8s-app: traefik-ingress-load-balancer
