@@ -33,7 +33,7 @@ spec:
       volumes:
         - name: postgres-persistent-storage
           gcePersistentDisk:
-            pdName: pg-data
+            pdName: postgres-data
             fsType: ext4
 ---
 apiVersion: v1
