@@ -1,9 +1,4 @@
-FROM mhart/alpine-node:8 as nodejs-builder
-
 FROM ruby:2.3.5-alpine3.4
-COPY --from=nodejs-builder /usr/bin/node /usr/bin/
-COPY --from=nodejs-builder /usr/lib/libgcc* /usr/lib/libstdc* /usr/lib/
-RUN node -v
 
 RUN apk update && \
     apk add --no-cache tzdata \
